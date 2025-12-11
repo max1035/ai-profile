@@ -1,222 +1,94 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Max 的 AI 个人主页 · 像素版</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --neon-blue: #5df0ff;
-            --deep-night: #0c1424;
-            --violet: #7c6bf8;
-            --mint: #7cfac0;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>演示版 H5 客户端</title>
 
-        * {
-            box-sizing: border-box;
-        }
+<style>
+    body {
+        margin: 0;
+        background: #f5f5f5;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica;
+    }
 
-        html, body {
-            margin: 0;
-            height: 100%;
-            background-color: var(--deep-night);
-            color: #e9f5ff;
-            font-family: 'Press Start 2P', system-ui, sans-serif;
-        }
+    .page {
+        display: none;
+        height: calc(100vh - 60px);
+        overflow-y: auto;
+        background: #000;
+    }
 
-        body {
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 32px 18px;
-            text-shadow: 2px 2px 0 #13203a, 4px 4px 0 rgba(0, 0, 0, 0.45);
-        }
+    .page.active {
+        display: block;
+    }
 
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background:
-                linear-gradient(135deg, rgba(22, 228, 255, 0.1), rgba(124, 107, 248, 0.2)),
-                repeating-linear-gradient(45deg, rgba(93, 240, 255, 0.13) 0, rgba(93, 240, 255, 0.13) 12px, rgba(12, 20, 36, 0.7) 12px, rgba(12, 20, 36, 0.7) 24px),
-                repeating-linear-gradient(-45deg, rgba(124, 250, 192, 0.12) 0, rgba(124, 250, 192, 0.12) 10px, rgba(12, 20, 36, 0.6) 10px, rgba(12, 20, 36, 0.6) 22px),
-                radial-gradient(circle at 20% 30%, rgba(93, 240, 255, 0.18), transparent 35%),
-                radial-gradient(circle at 85% 20%, rgba(124, 107, 248, 0.25), transparent 40%),
-                radial-gradient(circle at 40% 80%, rgba(124, 250, 192, 0.18), transparent 38%);
-            background-size: cover;
-            filter: saturate(1.2);
-            z-index: 0;
-        }
+    .screenshot {
+        width: 100%;
+        display: block;
+    }
 
-        body::after {
-            content: "";
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.03) 0, rgba(255, 255, 255, 0.03) 1px, transparent 1px, transparent 3px);
-            mix-blend-mode: screen;
-            opacity: 0.6;
-            z-index: 3;
-        }
+    .tabbar {
+        height: 60px;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        background: #ffffff;
+        border-top: 1px solid #ddd;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
 
-        .glow-grid {
-            position: fixed;
-            inset: 0;
-            background-image:
-                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 24px 24px, 24px 24px;
-            mix-blend-mode: soft-light;
-            z-index: 1;
-        }
+    .tabItem {
+        text-align: center;
+        font-size: 14px;
+        color: #999;
+        flex: 1;
+    }
 
-        .container {
-            position: relative;
-            z-index: 2;
-            max-width: 880px;
-            width: 100%;
-            backdrop-filter: blur(5px);
-            filter: drop-shadow(0 0 18px rgba(124, 107, 248, 0.25));
-        }
+    .tabItem.active {
+        color: #00c853;
+        font-weight: 600;
+    }
+</style>
 
-        .panel {
-            background: rgba(8, 14, 28, 0.82);
-            border: 4px solid #1b2c4d;
-            padding: 28px 24px;
-            box-shadow: 0 0 0 4px #0a172b, 0 0 0 8px #1b2c4d, 8px 8px 0 #040915;
-            clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
-        }
-
-        .card {
-            background: #0f1c33;
-            border: 4px solid #233a63;
-            padding: 18px 16px;
-            box-shadow: 0 0 0 4px #0a1428, 6px 6px 0 #040915;
-            clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
-        }
-
-        h1 {
-            font-size: 26px;
-            color: var(--neon-blue);
-            margin: 0 0 14px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            text-shadow: 3px 3px 0 #0b1a30, 6px 6px 0 rgba(0, 0, 0, 0.6), 0 0 14px rgba(93, 240, 255, 0.6);
-        }
-
-        h2 {
-            font-size: 18px;
-            color: var(--mint);
-            margin: 26px 0 12px;
-            text-shadow: 2px 2px 0 #0b1a30, 4px 4px 0 rgba(0, 0, 0, 0.55);
-        }
-
-        p {
-            font-size: 12px;
-            line-height: 1.8;
-            letter-spacing: 0.4px;
-            color: #dbe9ff;
-            margin: 12px 0;
-            text-shadow: 1px 1px 0 #0b1a30;
-        }
-
-        .intro {
-            display: grid;
-            gap: 14px;
-            align-items: start;
-            text-align: left;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 10px 12px;
-            margin-bottom: 6px;
-            background: #13203a;
-            border: 3px solid var(--violet);
-            box-shadow: 4px 4px 0 #040915;
-            color: var(--mint);
-            font-size: 11px;
-        }
-
-        .btn-bar {
-            margin-top: 22px;
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px 18px;
-            color: #0b1021;
-            background: var(--neon-blue);
-            text-decoration: none;
-            border: 4px solid #0a172b;
-            box-shadow: 0 0 0 4px #1b2c4d, 6px 6px 0 #040915;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
-        }
-
-        .btn::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(120deg, rgba(255, 255, 255, 0.35), transparent 55%);
-            mix-blend-mode: screen;
-            opacity: 0;
-            transition: opacity 120ms ease;
-        }
-
-        .btn:hover {
-            transform: translate(-2px, -2px);
-            box-shadow: 0 0 0 4px #2e4b84, 10px 10px 0 #040915;
-            filter: drop-shadow(0 0 10px rgba(93, 240, 255, 0.7));
-        }
-
-        .btn:hover::after {
-            opacity: 1;
-        }
-
-        @media (max-width: 600px) {
-            body {
-                padding: 22px 12px;
-            }
-
-            h1 { font-size: 22px; }
-            h2 { font-size: 16px; }
-            p { font-size: 11px; }
-        }
-    </style>
 </head>
 <body>
-    <div class="glow-grid"></div>
-    <div class="container">
-        <div class="panel intro">
-            <span class="badge">PIXEL RPG · AI LAB</span>
-            <h1>Hi，我是 Max</h1>
-            <p>一个热爱科技、探索未来、喜欢 AI 的创造者。</p>
 
-            <div class="card">
-                <h2>关于我</h2>
-                <p>我正在学习如何使用 AI 构建项目，并把 GitHub 当作实验室。</p>
-                <p>未来想打造属于自己的产品和智能助理。</p>
-            </div>
+<div id="home" class="page active">
+    <img class="screenshot" src="./assets/home.png" />
+</div>
 
-            <div class="btn-bar">
-                <a class="btn" href="mailto:max@example.com">联系我</a>
-                <a class="btn" href="#">进入像素世界</a>
-                <a class="btn" href="hud.html">Enter HUD OS</a>
-            </div>
-        </div>
-    </div>
+<div id="live" class="page">
+    <img class="screenshot" src="./assets/live.png" />
+</div>
+
+<div id="sports" class="page">
+    <img class="screenshot" src="./assets/sports.png" />
+</div>
+
+<div class="tabbar">
+    <div class="tabItem active" data-target="home">首页</div>
+    <div class="tabItem" data-target="live">直播</div>
+    <div class="tabItem" data-target="sports">体育</div>
+</div>
+
+<script>
+    const tabs = document.querySelectorAll(".tabItem");
+    const pages = document.querySelectorAll(".page");
+
+    tabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+            tabs.forEach(t => t.classList.remove("active"));
+            tab.classList.add("active");
+
+            pages.forEach(p => p.classList.remove("active"));
+            document.getElementById(tab.dataset.target).classList.add("active");
+        });
+    });
+</script>
+
 </body>
 </html>
